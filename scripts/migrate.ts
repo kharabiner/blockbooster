@@ -3,7 +3,9 @@ import fs from "fs";
 import path from "path";
 
 async function migrate() {
-  const connectionString = process.env.DATABASE_URL;
+  // DIRECT_URL(Session Pooler, port 5432) 우선 — DDL 지원
+  // 없으면 DATABASE_URL(Transaction Pooler) 사용
+  const connectionString = process.env.DIRECT_URL ?? process.env.DATABASE_URL;
   if (!connectionString) {
     console.error("DATABASE_URL is not set");
     process.exit(1);
