@@ -39,67 +39,81 @@
 }
 
 /* ════════════════════════════════════════════
-   메이플스토리 × 레고 라이트 테마
+   메이플스토리 × 레고 — 5색 블록 팔레트
+   ════════════════════════════════════════════
+   Purple  #7C3AED  oklch(0.54 0.28 293)  → Primary / 로고
+   Yellow  #F59E0B  oklch(0.82 0.19 85)   → Accent / 포인트
+   Red     #EF4444  oklch(0.60 0.24 27)   → Destructive / 에너지
+   Green   #22C55E  oklch(0.66 0.22 145)  → Success / 자연
+   Blue    #3B82F6  oklch(0.60 0.22 250)  → Info / 링크
    ════════════════════════════════════════════ */
 :root {
-  /* 배경: 따뜻한 크림 */
-  --background: oklch(0.97 0.012 95);
-  --foreground: oklch(0.18 0.02 265);
+  /* ── 블록 팔레트 (전역 참조용) ── */
+  --block-purple: oklch(0.54 0.28 293);
+  --block-yellow: oklch(0.82 0.19 85);
+  --block-red:    oklch(0.60 0.24 27);
+  --block-green:  oklch(0.66 0.22 145);
+  --block-blue:   oklch(0.60 0.22 250);
+  --block-orange: oklch(0.72 0.20 50);
 
-  /* 카드: 흰색 + 약한 노란 기운 */
-  --card: oklch(1 0.005 90);
-  --card-foreground: oklch(0.18 0.02 265);
+  /* ── 배경: 따뜻한 크림, 레고 판 느낌 ── */
+  --background: oklch(0.975 0.015 88);
+  --foreground: oklch(0.15 0.025 270);
 
-  --popover: oklch(1 0.005 90);
-  --popover-foreground: oklch(0.18 0.02 265);
+  /* ── 카드 ── */
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.15 0.025 270);
 
-  /* 프라이머리: 메이플 블루 */
-  --primary: oklch(0.50 0.22 264);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.15 0.025 270);
+
+  /* ── Primary: 레고 퍼플 ── */
+  --primary: var(--block-purple);
   --primary-foreground: oklch(0.99 0 0);
 
-  /* 세컨더리: 연한 하늘 */
-  --secondary: oklch(0.88 0.07 220);
-  --secondary-foreground: oklch(0.28 0.12 260);
+  /* ── Secondary: 밝은 라벤더 ── */
+  --secondary: oklch(0.91 0.06 293);
+  --secondary-foreground: oklch(0.35 0.15 293);
 
-  /* 뮤트 */
-  --muted: oklch(0.93 0.015 90);
-  --muted-foreground: oklch(0.52 0.03 265);
+  /* ── Muted ── */
+  --muted: oklch(0.94 0.012 88);
+  --muted-foreground: oklch(0.50 0.025 270);
 
-  /* 액센트: 메이플 노랑-주황 */
-  --accent: oklch(0.85 0.14 75);
-  --accent-foreground: oklch(0.25 0.06 50);
+  /* ── Accent: 레고 옐로우 ── */
+  --accent: var(--block-yellow);
+  --accent-foreground: oklch(0.22 0.06 60);
 
-  /* 위험 */
-  --destructive: oklch(0.60 0.23 25);
+  /* ── Destructive: 레고 레드 ── */
+  --destructive: var(--block-red);
 
-  /* 테두리: 두껍고 진한 남색 */
-  --border: oklch(0.28 0.04 265);
-  --input: oklch(0.90 0.02 90);
-  --ring: oklch(0.50 0.22 264);
+  /* ── 테두리: 진한 잉크 — 팝아트 윤곽선 ── */
+  --border: oklch(0.20 0.03 270);
+  --input:  oklch(0.92 0.01 88);
+  --ring:   var(--block-purple);
 
-  /* 반지름: 레고 블록처럼 뚜렷한 곡선 */
+  /* ── 반지름 ── */
   --radius: 0.75rem;
 }
 
 .dark {
-  --background: oklch(0.14 0.03 265);
-  --foreground: oklch(0.96 0.01 90);
-  --card: oklch(0.20 0.03 265);
-  --card-foreground: oklch(0.96 0.01 90);
-  --popover: oklch(0.20 0.03 265);
-  --popover-foreground: oklch(0.96 0.01 90);
-  --primary: oklch(0.62 0.22 264);
-  --primary-foreground: oklch(0.10 0.02 265);
-  --secondary: oklch(0.28 0.05 265);
-  --secondary-foreground: oklch(0.90 0.01 90);
-  --muted: oklch(0.25 0.03 265);
-  --muted-foreground: oklch(0.65 0.03 265);
-  --accent: oklch(0.70 0.16 75);
-  --accent-foreground: oklch(0.15 0.05 50);
-  --destructive: oklch(0.65 0.23 25);
-  --border: oklch(0.75 0.02 90 / 20%);
-  --input: oklch(0.75 0.02 90 / 15%);
-  --ring: oklch(0.62 0.22 264);
+  --background: oklch(0.13 0.03 270);
+  --foreground: oklch(0.96 0.01 88);
+  --card: oklch(0.18 0.03 270);
+  --card-foreground: oklch(0.96 0.01 88);
+  --popover: oklch(0.18 0.03 270);
+  --popover-foreground: oklch(0.96 0.01 88);
+  --primary: oklch(0.68 0.26 293);
+  --primary-foreground: oklch(0.10 0.02 270);
+  --secondary: oklch(0.26 0.06 293);
+  --secondary-foreground: oklch(0.90 0.01 88);
+  --muted: oklch(0.23 0.03 270);
+  --muted-foreground: oklch(0.62 0.03 270);
+  --accent: oklch(0.75 0.18 85);
+  --accent-foreground: oklch(0.15 0.05 60);
+  --destructive: oklch(0.65 0.23 27);
+  --border: oklch(0.75 0.02 88 / 18%);
+  --input: oklch(0.75 0.02 88 / 12%);
+  --ring: oklch(0.68 0.26 293);
 }
 
 /* ════════════════════════════════════════════
@@ -113,11 +127,13 @@
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-nunito), "Nunito", ui-sans-serif, sans-serif;
-    /* 격자 배경 — 레고 판 느낌 */
-    background-image:
-      linear-gradient(oklch(0.78 0.04 220 / 18%) 1px, transparent 1px),
-      linear-gradient(to right, oklch(0.78 0.04 220 / 18%) 1px, transparent 1px);
-    background-size: 32px 32px;
+    /* 도트 배경 — 레고 베이스플레이트 */
+    background-image: radial-gradient(
+      circle,
+      oklch(0.65 0.08 293 / 22%) 1.5px,
+      transparent 1.5px
+    );
+    background-size: 28px 28px;
   }
 }
 

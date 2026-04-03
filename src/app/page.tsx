@@ -8,20 +8,20 @@ import { CalendarDays, MapPin, Store, Plus, LayoutTemplate, Zap } from "lucide-r
 import { Badge } from "@/components/ui/badge";
 
 const STATUS_LABEL: Record<string, { label: string; color: string }> = {
-  DRAFT:     { label: "준비중",  color: "bg-zinc-200 text-zinc-700 border-zinc-400" },
-  PUBLISHED: { label: "모집중",  color: "bg-blue-200 text-blue-800 border-blue-400" },
-  ONGOING:   { label: "진행중",  color: "bg-green-200 text-green-800 border-green-500" },
-  ENDED:     { label: "종료",    color: "bg-zinc-100 text-zinc-500 border-zinc-300" },
+  DRAFT:     { label: "준비중",  color: "bg-zinc-100  text-zinc-600  border-zinc-400" },
+  PUBLISHED: { label: "모집중",  color: "bg-blue-100  text-blue-800  border-blue-400" },
+  ONGOING:   { label: "진행중",  color: "bg-green-100 text-green-800 border-green-500" },
+  ENDED:     { label: "종료",    color: "bg-zinc-100  text-zinc-400  border-zinc-300" },
 };
 
-// 레고 블록 컬러 팔레트 (이벤트 카드 상단)
+// 5색 블록 팔레트 — Yellow / Red / Green / Blue / Purple / Orange
 const CARD_COLORS = [
-  "from-yellow-300 to-amber-400",
-  "from-red-400 to-rose-500",
-  "from-green-400 to-emerald-500",
-  "from-blue-400 to-sky-500",
-  "from-purple-400 to-violet-500",
-  "from-orange-400 to-amber-500",
+  "from-amber-300   to-yellow-400",
+  "from-red-400     to-rose-500",
+  "from-emerald-400 to-green-500",
+  "from-blue-400    to-sky-500",
+  "from-violet-400  to-purple-500",
+  "from-orange-400  to-amber-500",
 ];
 
 export default async function HomePage() {
@@ -57,7 +57,7 @@ export default async function HomePage() {
         <div className="relative container mx-auto px-4 py-16 sm:py-24 text-center">
           {/* 레고 블록 장식 */}
           <div className="flex justify-center gap-2 mb-6">
-            {["bg-yellow-300","bg-red-400","bg-green-400","bg-blue-300","bg-purple-400"].map((c, i) => (
+            {["bg-yellow-400","bg-red-500","bg-emerald-500","bg-blue-500","bg-violet-500"].map((c, i) => (
               <div
                 key={i}
                 className={`w-8 h-8 ${c} border-2 border-white/50 rounded-md shadow-[2px_2px_0px_rgba(0,0,0,0.4)]`}
@@ -92,9 +92,9 @@ export default async function HomePage() {
       <section className="container mx-auto px-4 py-10">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[
-            { icon: "🎯", color: "bg-yellow-200 border-yellow-400", title: "템플릿으로 시작", desc: "캡스톤, 플리마켓, 박람회 — 원하는 형식을 골라 바로 시작" },
-            { icon: "🧩", color: "bg-blue-200 border-blue-400",   title: "기능 모듈 조합", desc: "별점, 채점, 스탬프, 채팅 — 필요한 기능만 블록처럼 붙이기" },
-            { icon: "📊", color: "bg-green-200 border-green-400", title: "실시간 통계", desc: "방문자 현황, 별점 순위, 채점 결과를 한눈에 확인" },
+            { icon: "🎯", color: "bg-amber-100  border-amber-400",   title: "템플릿으로 시작", desc: "캡스톤, 플리마켓, 박람회 — 원하는 형식을 골라 바로 시작" },
+            { icon: "🧩", color: "bg-violet-100 border-violet-400",  title: "기능 모듈 조합", desc: "별점, 채점, 스탬프, 채팅 — 필요한 기능만 블록처럼 붙이기" },
+            { icon: "📊", color: "bg-emerald-100 border-emerald-400", title: "실시간 통계", desc: "방문자 현황, 별점 순위, 채점 결과를 한눈에 확인" },
           ].map((item) => (
             <div key={item.title} className={`flex items-start gap-3 p-4 rounded-xl border-2 ${item.color} shadow-[3px_3px_0px_rgba(0,0,0,0.75)]`}>
               <span className="text-2xl">{item.icon}</span>

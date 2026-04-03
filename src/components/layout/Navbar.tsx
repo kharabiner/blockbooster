@@ -29,19 +29,14 @@ const S = C + G; // stride
 
 type LogoBlock = { col: number; row: number; w: number; h: number; color: string };
 
+// 팔레트: Purple / Yellow / Red / Green / Orange / Blue
 const LOGO_BLOCKS: LogoBlock[] = [
-  // 왼쪽 세로 기둥 — 1열 × 5행 (긴 블록)
-  { col: 0, row: 0, w: 1, h: 5, color: "#6366f1" },
-  // 상단 가로 바 — 2열 × 1행
-  { col: 1, row: 0, w: 2, h: 1, color: "#fbbf24" },
-  // 상단 오른쪽 범프 — 1×1
-  { col: 3, row: 1, w: 1, h: 1, color: "#ef4444" },
-  // 중간 가로 바 — 2열 × 1행
-  { col: 1, row: 2, w: 2, h: 1, color: "#22c55e" },
-  // 하단 오른쪽 범프 — 1×1
-  { col: 3, row: 3, w: 1, h: 1, color: "#f97316" },
-  // 하단 가로 바 — 2열 × 1행
-  { col: 1, row: 4, w: 2, h: 1, color: "#a855f7" },
+  { col: 0, row: 0, w: 1, h: 5, color: "#7C3AED" },  // Purple — 왼쪽 기둥
+  { col: 1, row: 0, w: 2, h: 1, color: "#F59E0B" },  // Yellow — 상단 바
+  { col: 3, row: 1, w: 1, h: 1, color: "#EF4444" },  // Red    — 상단 범프
+  { col: 1, row: 2, w: 2, h: 1, color: "#22C55E" },  // Green  — 중간 바
+  { col: 3, row: 3, w: 1, h: 1, color: "#F97316" },  // Orange — 하단 범프
+  { col: 1, row: 4, w: 2, h: 1, color: "#3B82F6" },  // Blue   — 하단 바
 ];
 
 function BlockBLogo() {
