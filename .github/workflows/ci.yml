@@ -1,0 +1,82 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  typecheck:
+    name: TypeScript 타입 검사
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Node.js 설정
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: 의존성 설치
+        run: npm ci
+
+      - name: Prisma 클라이언트 생성
+        run: npx prisma generate
+        env:
+          DATABASE_URL: "file:./prisma/ci.db"
+
+      - name: TypeScript 타입 검사
+        run: npx tsc --noEmit
+
+  lint:
+    name: ESLint 검사
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Node.js 설정
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: 의존성 설치
+        run: npm ci
+
+      - name: Prisma 클라이언트 생성
+        run: npx prisma generate
+        env:
+          DATABASE_URL: "file:./prisma/ci.db"
+
+      - name: ESLint 실행
+        run: npm run lint
+
+  build:
+    name: 빌드 테스트
+    runs-on: ubuntu-latest
+    needs: [typecheck, lint]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Node.js 설정
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: 의존성 설치
+        run: npm ci
+
+      - name: Prisma 클라이언트 생성
+        run: npx prisma generate
+        env:
+          DATABASE_URL: "file:./prisma/ci.db"
+
+      - name: Next.js 빌드
+        run: npm run build
+        env:
+          DATABASE_URL: "file:./prisma/ci.db"
+          AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
+          NEXTAUTH_URL: "https://blockbooster.vercel.app"
