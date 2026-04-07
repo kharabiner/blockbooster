@@ -21,7 +21,19 @@ export async function GET(_req: NextRequest, { params }: Params) {
     include: { module: true },
   });
   return NextResponse.json(
-    modules.map((m) => ({ ...m, config: JSON.parse(m.config) }))
+    modules.map((m) => {
+      // DB name 대신 레지스트리 한국어 이름을 우선 사용
+      const def = getModule(m.moduleId);
+      return {
+        ...m,
+        config: JSON.parse(m.config),
+        module: {
+          ...m.module,
+          name: def?.name ?? m.module.name,
+          description: def?.description ?? m.module.description,
+        },
+      };
+    })
   );
 }
 

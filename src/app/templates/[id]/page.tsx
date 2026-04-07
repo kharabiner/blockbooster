@@ -11,17 +11,9 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { LayoutGrid, Zap, Users, ArrowLeft, Copy } from "lucide-react";
 import { TemplateActions } from "@/components/templates/TemplateActions";
+import { getModule } from "@/lib/modules/registry";
 
 type Params = { params: Promise<{ id: string }> };
-
-const MODULE_NAMES: Record<string, { name: string; desc: string }> = {
-  "score-input": { name: "점수 입력", desc: "부스에 점수를 부여합니다" },
-  "info-board": { name: "정보 보드", desc: "운영자가 항목을 정의해 정보를 올립니다" },
-  stamp: { name: "스탬프", desc: "부스 방문 시 스탬프를 획득합니다" },
-  chat: { name: "실시간 채팅", desc: "방문객과 실시간으로 소통합니다" },
-  reaction: { name: "반응", desc: "이모지 반응을 남깁니다" },
-  announcement: { name: "공지사항", desc: "이벤트 전체에 공지를 전달합니다" },
-};
 
 export default async function TemplateDetailPage({ params }: Params) {
   const { id } = await params;
@@ -114,15 +106,15 @@ export default async function TemplateDetailPage({ params }: Params) {
         ) : (
           <div className="space-y-2">
             {template.modules.map((tm) => {
-              const info = MODULE_NAMES[tm.moduleId] ?? { name: tm.moduleId, desc: "" };
+              const def = getModule(tm.moduleId);
               return (
                 <div key={tm.moduleId} className="flex items-start gap-3 p-3 rounded-lg border">
                   <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center flex-shrink-0">
                     <Zap className="h-4 w-4 text-indigo-600" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium">{info.name}</p>
-                    <p className="text-xs text-muted-foreground">{info.desc}</p>
+                    <p className="text-sm font-medium">{def?.name ?? tm.moduleId}</p>
+                    <p className="text-xs text-muted-foreground">{def?.description ?? ""}</p>
                   </div>
                 </div>
               );

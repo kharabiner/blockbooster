@@ -7,16 +7,15 @@ import { buttonVariants } from "@/lib/button-variants";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Plus, Users, Zap, LayoutGrid } from "lucide-react";
+import { getModule } from "@/lib/modules/registry";
 
-export const revalidate = 60;
-
-const MODULE_NAMES: Record<string, { label: string; color: string }> = {
-  "score-input":  { label: "점수 입력",   color: "bg-orange-100 text-orange-800 border-orange-400" },
-  "info-board":   { label: "정보 보드",   color: "bg-blue-100 text-blue-800 border-blue-400" },
-  stamp:          { label: "스탬프",      color: "bg-violet-100 text-violet-800 border-violet-400" },
-  chat:           { label: "실시간 채팅", color: "bg-emerald-100 text-emerald-800 border-emerald-400" },
-  reaction:       { label: "반응",        color: "bg-pink-100 text-pink-800 border-pink-400" },
-  announcement:   { label: "공지사항",    color: "bg-red-100 text-red-800 border-red-400" },
+const MODULE_COLORS: Record<string, string> = {
+  "score-input":  "bg-orange-100 text-orange-800 border-orange-400",
+  "info-board":   "bg-blue-100 text-blue-800 border-blue-400",
+  "stamp":        "bg-violet-100 text-violet-800 border-violet-400",
+  "chat":         "bg-emerald-100 text-emerald-800 border-emerald-400",
+  "reaction":     "bg-pink-100 text-pink-800 border-pink-400",
+  "announcement": "bg-red-100 text-red-800 border-red-400",
 };
 
 // 템플릿별 썸네일 레고 블록 컬러
@@ -108,16 +107,17 @@ export default async function TemplatesPage() {
                   {template.modules.length > 0 && (
                     <div className="flex flex-wrap gap-1">
                       {template.modules.map((tm) => {
-                        const m = MODULE_NAMES[tm.moduleId];
+                        const def = getModule(tm.moduleId);
+                        const color = MODULE_COLORS[tm.moduleId];
                         return (
                           <span
                             key={tm.moduleId}
                             className={cn(
                               "inline-flex items-center gap-0.5 text-[10px] font-black px-1.5 py-0.5 rounded-md border",
-                              m?.color ?? "bg-muted text-foreground border-foreground/30"
+                              color ?? "bg-muted text-foreground border-foreground/30"
                             )}
                           >
-                            {m?.label ?? tm.moduleId}
+                            {def?.name ?? tm.moduleId}
                           </span>
                         );
                       })}
