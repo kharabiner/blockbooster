@@ -53,10 +53,8 @@ export function AnnouncementSection({ eventId, isOrganizer }: Props) {
   }
 
   async function remove(announcementId: string) {
-    const res = await fetch(`/api/events/${eventId}/announcements`, {
+    const res = await fetch(`/api/events/${eventId}/announcements?announcementId=${announcementId}`, {
       method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ announcementId }),
     });
     if (res.ok) {
       toast.success("공지가 삭제되었습니다.");

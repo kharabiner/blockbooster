@@ -51,6 +51,20 @@ export async function POST(req: NextRequest, { params }: Params) {
   const slot = await prisma.boothSlot.findUnique({ where: { id: slotId } });
   if (!slot) return NextResponse.json({ error: "슬롯을 찾을 수 없습니다." }, { status: 404 });
 
+  // allowedEmails 접근제어: EventModule config에 이메일 목록이 있으면 서버에서 강제
+  const eventModule = await prisma.eventModule.findFirst({
+    where: { eventId: slot.eventId, moduleId },
+  });
+  if (eventModule) {
+    const cfg = JSON.parse(eventModule.config) as Record<string, unknown>;
+    const allowedEmails = (cfg.allowedEmails as string[] | undefined) ?? [];
+    if (allowedEmails.length > 0) {
+      if (!session?.user?.email || !allowedEmails.includes(session.user.email)) {
+        return NextResponse.json({ error: "접근 권한이 없습니다." }, { status: 403 });
+      }
+    }
+  }
+
   const body = await req.json();
   const userId = session?.user?.id ?? null;
 

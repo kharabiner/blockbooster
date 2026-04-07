@@ -27,6 +27,11 @@ export const MODULE_REGISTRY: Record<string, FeatureModuleDef> = {
         label: "채점 기준 항목",
       },
       maxScore: { type: "number", default: 10, label: "항목당 최대 점수" },
+      allowedEmails: {
+        type: "array",
+        default: [],
+        label: "채점 허용 이메일 목록 (비워두면 누구나 가능)",
+      },
     },
   },
   "stamp-rally": {
