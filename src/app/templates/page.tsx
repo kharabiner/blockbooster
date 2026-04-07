@@ -11,12 +11,12 @@ import { Plus, Users, Zap, LayoutGrid } from "lucide-react";
 export const revalidate = 60;
 
 const MODULE_NAMES: Record<string, { label: string; color: string }> = {
-  "visitor-rating":  { label: "방문객 별점",  color: "bg-yellow-100 text-yellow-800 border-yellow-400" },
-  "judge-scoring":   { label: "심사 채점",    color: "bg-orange-100 text-orange-800 border-orange-400" },
-  "stamp-rally":     { label: "스탬프 랠리",  color: "bg-violet-100 text-violet-800 border-violet-400" },
-  "product-showcase":{ label: "상품 진열",    color: "bg-blue-100 text-blue-800 border-blue-400" },
-  "live-chat":       { label: "실시간 채팅",  color: "bg-emerald-100 text-emerald-800 border-emerald-400" },
-  announcement:      { label: "공지사항",     color: "bg-red-100 text-red-800 border-red-400" },
+  "score-input":  { label: "점수 입력",   color: "bg-orange-100 text-orange-800 border-orange-400" },
+  "info-board":   { label: "정보 보드",   color: "bg-blue-100 text-blue-800 border-blue-400" },
+  stamp:          { label: "스탬프",      color: "bg-violet-100 text-violet-800 border-violet-400" },
+  chat:           { label: "실시간 채팅", color: "bg-emerald-100 text-emerald-800 border-emerald-400" },
+  reaction:       { label: "반응",        color: "bg-pink-100 text-pink-800 border-pink-400" },
+  announcement:   { label: "공지사항",    color: "bg-red-100 text-red-800 border-red-400" },
 };
 
 // 템플릿별 썸네일 레고 블록 컬러

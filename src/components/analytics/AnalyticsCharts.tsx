@@ -5,8 +5,6 @@ import { Clock } from "lucide-react";
 
 interface Props {
   hourlyVisits: number[];
-  ratingStats: { boothName: string; avgRating: number; count: number }[];
-  scoringStats: { boothName: string; avgTotal: number; count: number }[];
 }
 
 export function AnalyticsCharts({ hourlyVisits }: Props) {

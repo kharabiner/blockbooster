@@ -78,7 +78,7 @@ export default async function HomePage() {
           </h1>
           <p className="text-base text-foreground/60 mb-8 max-w-md mx-auto font-semibold">
             부스 이벤트를 레고처럼 조립하세요.<br />
-            별점, 채점, 스탬프까지 원하는 기능을 붙이면 끝.
+            캡스톤 전시·졸업작품 전시에 맞는 템플릿부터, 점수·정보·스탬프·채팅을 원하는 대로.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -99,8 +99,8 @@ export default async function HomePage() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[
             { icon: <Target className="h-5 w-5 text-amber-600" />,   color: "bg-amber-50  border-amber-300",   title: "템플릿으로 시작", desc: "캡스톤, 플리마켓, 박람회 — 원하는 형식을 골라 바로 시작" },
-            { icon: <Layers className="h-5 w-5 text-violet-600" />,  color: "bg-violet-50 border-violet-300",  title: "기능 모듈 조합", desc: "별점, 채점, 스탬프, 채팅 — 필요한 기능만 블록처럼 붙이기" },
-            { icon: <BarChart2 className="h-5 w-5 text-emerald-600" />, color: "bg-emerald-50 border-emerald-300", title: "실시간 통계", desc: "방문자 현황, 별점 순위, 채점 결과를 한눈에 확인" },
+            { icon: <Layers className="h-5 w-5 text-violet-600" />,  color: "bg-violet-50 border-violet-300",  title: "기능 모듈 조합", desc: "점수 입력, 정보 보드, 스탬프, 반응, 채팅 — 필요한 것만 블록처럼" },
+            { icon: <BarChart2 className="h-5 w-5 text-emerald-600" />, color: "bg-emerald-50 border-emerald-300", title: "실시간 통계", desc: "방문자 현황, 점수 순위, 스탬프 수집을 한눈에" },
           ].map((item) => (
             <div key={item.title} className={`flex items-start gap-3 p-4 rounded-xl border-2 ${item.color} shadow-[3px_3px_0px_rgba(0,0,0,0.6)]`}>
               <div className="mt-0.5 flex-shrink-0">{item.icon}</div>

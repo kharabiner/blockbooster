@@ -15,12 +15,12 @@ import { buttonVariants } from "@/lib/button-variants";
 import { cn } from "@/lib/utils";
 
 const ALL_MODULES = [
-  { id: "visitor-rating", name: "방문객 별점", desc: "방문객이 부스에 별점을 부여합니다" },
-  { id: "judge-scoring", name: "심사위원 채점", desc: "심사위원이 기준별 점수를 채점합니다" },
-  { id: "stamp-rally", name: "스탬프 랠리", desc: "부스 방문 시 스탬프를 수집합니다" },
-  { id: "product-showcase", name: "상품 진열", desc: "상품/서비스 목록을 보여줍니다" },
-  { id: "live-chat", name: "실시간 채팅", desc: "방문객과 실시간으로 소통합니다" },
-  { id: "announcement", name: "공지사항", desc: "이벤트 전체에 공지를 전달합니다" },
+  { id: "score-input", name: "점수 입력", desc: "부스에 점수를 부여합니다 (범위·라벨 설정)" },
+  { id: "info-board", name: "정보 보드", desc: "팀 소개·링크·문서 등 자유 형식 정보" },
+  { id: "stamp", name: "스탬프", desc: "부스 방문 시 스탬프 획득" },
+  { id: "chat", name: "실시간 채팅", desc: "방문객과 실시간 소통" },
+  { id: "reaction", name: "반응", desc: "이모지 반응으로 응원·피드백" },
+  { id: "announcement", name: "공지사항", desc: "이벤트 전체 공지" },
 ];
 
 export default function NewTemplatePage() {

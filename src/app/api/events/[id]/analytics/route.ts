@@ -52,59 +52,40 @@ export async function GET(
     });
   });
 
-  // 별점 집계 — moduleData에서 직접 계산
-  const ratingMap: Record<string, { name: string; total: number; count: number }> = {};
+  // 점수 입력 집계 (score-input, 구 visitor-rating / judge-scoring 호환)
+  const scoreMap: Record<string, { name: string; totals: number[]; count: number }> = {};
+  const scoreModuleIds = new Set(["score-input", "visitor-rating", "judge-scoring"]);
   event.slots.forEach((slot) => {
     slot.moduleData
-      .filter((d) => d.moduleId === "visitor-rating")
+      .filter((d) => scoreModuleIds.has(d.moduleId))
       .forEach((d) => {
-        const data = JSON.parse(d.data) as { stars?: number };
-        const stars = data.stars ?? 0;
-        if (!ratingMap[slot.id]) {
-          ratingMap[slot.id] = { name: slot.booth?.name ?? "Unknown", total: 0, count: 0 };
+        const raw = JSON.parse(d.data) as { score?: number; stars?: number; scores?: number[] };
+        let val = 0;
+        if (typeof raw.score === "number") val = raw.score;
+        else if (typeof raw.stars === "number") val = raw.stars;
+        else if (Array.isArray(raw.scores)) val = raw.scores.reduce((a, b) => a + b, 0);
+        if (!scoreMap[slot.id]) {
+          scoreMap[slot.id] = { name: slot.booth?.name ?? "Unknown", totals: [], count: 0 };
         }
-        ratingMap[slot.id].total += stars;
-        ratingMap[slot.id].count++;
+        scoreMap[slot.id].totals.push(val);
+        scoreMap[slot.id].count++;
       });
   });
 
-  const ratingStats = Object.values(ratingMap)
-    .map((r) => ({
-      boothName: r.name,
-      avgRating: Math.round((r.total / r.count) * 10) / 10,
-      count: r.count,
-    }))
-    .sort((a, b) => b.avgRating - a.avgRating);
-
-  // 채점 집계
-  const scoringMap: Record<string, { name: string; totals: number[]; count: number }> = {};
-  event.slots.forEach((slot) => {
-    slot.moduleData
-      .filter((d) => d.moduleId === "judge-scoring")
-      .forEach((d) => {
-        const data = JSON.parse(d.data) as { scores?: number[] };
-        const scores = data.scores ?? [];
-        const total = scores.reduce((a: number, b: number) => a + b, 0);
-        if (!scoringMap[slot.id]) {
-          scoringMap[slot.id] = { name: slot.booth?.name ?? "Unknown", totals: [], count: 0 };
-        }
-        scoringMap[slot.id].totals.push(total);
-        scoringMap[slot.id].count++;
-      });
-  });
-
-  const scoringStats = Object.values(scoringMap)
+  const scoreStats = Object.values(scoreMap)
     .map((s) => ({
       boothName: s.name,
-      avgTotal: s.totals.length
+      avgScore: s.totals.length
         ? Math.round((s.totals.reduce((a, b) => a + b, 0) / s.totals.length) * 10) / 10
         : 0,
       count: s.count,
     }))
-    .sort((a, b) => b.avgTotal - a.avgTotal);
+    .sort((a, b) => b.avgScore - a.avgScore);
 
   const stampCount = event.slots.reduce(
-    (s, slot) => s + slot.moduleData.filter((d) => d.moduleId === "stamp-rally").length,
+    (s, slot) =>
+      s +
+      slot.moduleData.filter((d) => d.moduleId === "stamp" || d.moduleId === "stamp-rally").length,
     0
   );
 
@@ -118,8 +99,7 @@ export async function GET(
     ).size,
     slotStats,
     hourlyVisits,
-    ratingStats,
-    scoringStats,
+    scoreStats,
     stampCount,
   });
 }

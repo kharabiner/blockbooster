@@ -15,11 +15,11 @@ import { TemplateActions } from "@/components/templates/TemplateActions";
 type Params = { params: Promise<{ id: string }> };
 
 const MODULE_NAMES: Record<string, { name: string; desc: string }> = {
-  "visitor-rating": { name: "방문객 별점", desc: "방문객이 부스에 별점을 부여합니다" },
-  "judge-scoring": { name: "심사위원 채점", desc: "심사위원이 기준별 점수를 채점합니다" },
-  "stamp-rally": { name: "스탬프 랠리", desc: "부스 방문 시 스탬프를 수집합니다" },
-  "product-showcase": { name: "상품 진열", desc: "상품/서비스 목록을 보여줍니다" },
-  "live-chat": { name: "실시간 채팅", desc: "방문객과 실시간으로 소통합니다" },
+  "score-input": { name: "점수 입력", desc: "부스에 점수를 부여합니다" },
+  "info-board": { name: "정보 보드", desc: "운영자가 항목을 정의해 정보를 올립니다" },
+  stamp: { name: "스탬프", desc: "부스 방문 시 스탬프를 획득합니다" },
+  chat: { name: "실시간 채팅", desc: "방문객과 실시간으로 소통합니다" },
+  reaction: { name: "반응", desc: "이모지 반응을 남깁니다" },
   announcement: { name: "공지사항", desc: "이벤트 전체에 공지를 전달합니다" },
 };
 

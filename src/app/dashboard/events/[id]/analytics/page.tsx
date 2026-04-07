@@ -30,16 +30,7 @@ export default async function EventAnalyticsPage({ params }: Params) {
   const event = await prisma.event.findUnique({ where: { id } });
   if (!event || event.organizerId !== session.user.id) notFound();
 
-  // Fetch analytics from own API
-  const res = await fetch(
-    `${process.env.NEXTAUTH_URL ?? "http://localhost:3000"}/api/events/${id}/analytics`,
-    {
-      headers: { Cookie: `next-auth.session-token=` },
-      cache: "no-store",
-    }
-  );
-
-  // Fallback: query directly on server
+  // 서버에서 직접 집계 (API와 동일 로직 유지)
   const { prisma: db } = await import("@/lib/prisma");
   const slots = await db.boothSlot.findMany({
     where: { eventId: id },
@@ -76,47 +67,35 @@ export default async function EventAnalyticsPage({ params }: Params) {
     })
   );
 
-  // 별점 집계
-  const ratingMap: Record<string, { name: string; total: number; count: number }> = {};
+  const scoreModuleIds = new Set(["score-input", "visitor-rating", "judge-scoring"]);
+  const scoreMap: Record<string, { name: string; totals: number[]; count: number }> = {};
   slots.forEach((slot) => {
     slot.moduleData
-      .filter((d) => d.moduleId === "visitor-rating")
+      .filter((d) => scoreModuleIds.has(d.moduleId))
       .forEach((d) => {
-        const parsed = JSON.parse(d.data) as { stars?: number };
-        const stars = parsed.stars ?? 0;
-        if (!ratingMap[slot.id]) ratingMap[slot.id] = { name: slot.booth?.name ?? "", total: 0, count: 0 };
-        ratingMap[slot.id].total += stars;
-        ratingMap[slot.id].count++;
+        const raw = JSON.parse(d.data) as { score?: number; stars?: number; scores?: number[] };
+        let val = 0;
+        if (typeof raw.score === "number") val = raw.score;
+        else if (typeof raw.stars === "number") val = raw.stars;
+        else if (Array.isArray(raw.scores)) val = raw.scores.reduce((a, b) => a + b, 0);
+        if (!scoreMap[slot.id]) scoreMap[slot.id] = { name: slot.booth?.name ?? "", totals: [], count: 0 };
+        scoreMap[slot.id].totals.push(val);
+        scoreMap[slot.id].count++;
       });
   });
-  const ratingStats = Object.values(ratingMap)
-    .map((r) => ({ boothName: r.name, avgRating: Math.round((r.total / r.count) * 10) / 10, count: r.count }))
-    .sort((a, b) => b.avgRating - a.avgRating);
-
-  // 채점 집계
-  const scoringMap: Record<string, { name: string; totals: number[]; count: number }> = {};
-  slots.forEach((slot) => {
-    slot.moduleData
-      .filter((d) => d.moduleId === "judge-scoring")
-      .forEach((d) => {
-        const parsed = JSON.parse(d.data) as { scores?: number[] };
-        const scores = parsed.scores ?? [];
-        const total = scores.reduce((a: number, b: number) => a + b, 0);
-        if (!scoringMap[slot.id]) scoringMap[slot.id] = { name: slot.booth?.name ?? "", totals: [], count: 0 };
-        scoringMap[slot.id].totals.push(total);
-        scoringMap[slot.id].count++;
-      });
-  });
-  const scoringStats = Object.values(scoringMap)
+  const scoreStats = Object.values(scoreMap)
     .map((s) => ({
       boothName: s.name,
-      avgTotal: s.totals.length ? Math.round((s.totals.reduce((a, b) => a + b, 0) / s.totals.length) * 10) / 10 : 0,
+      avgScore: s.totals.length
+        ? Math.round((s.totals.reduce((a, b) => a + b, 0) / s.totals.length) * 10) / 10
+        : 0,
       count: s.count,
     }))
-    .sort((a, b) => b.avgTotal - a.avgTotal);
+    .sort((a, b) => b.avgScore - a.avgScore);
 
   const stampCount = slots.reduce(
-    (s, slot) => s + slot.moduleData.filter((d) => d.moduleId === "stamp-rally").length,
+    (s, slot) =>
+      s + slot.moduleData.filter((d) => d.moduleId === "stamp" || d.moduleId === "stamp-rally").length,
     0
   );
 
@@ -127,8 +106,7 @@ export default async function EventAnalyticsPage({ params }: Params) {
     uniqueVisitors: uniqueVisitorIds.size,
     slotStats,
     hourlyVisits,
-    ratingStats,
-    scoringStats,
+    scoreStats,
     stampCount,
   };
 
@@ -199,60 +177,29 @@ export default async function EventAnalyticsPage({ params }: Params) {
       )}
 
       {/* 시간대별 방문 차트 */}
-      <AnalyticsCharts
-        hourlyVisits={analyticsData.hourlyVisits}
-        ratingStats={analyticsData.ratingStats}
-        scoringStats={analyticsData.scoringStats}
-      />
+      <AnalyticsCharts hourlyVisits={analyticsData.hourlyVisits} />
 
-      {/* 별점 순위 */}
-      {analyticsData.ratingStats.length > 0 && (
+      {analyticsData.scoreStats.length > 0 && (
         <Card className="mb-6">
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
-              <Star className="h-4 w-4 text-amber-500" />
-              별점 순위
+              <Trophy className="h-4 w-4 text-amber-500" />
+              점수 순위 (점수 입력 모듈)
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              {analyticsData.ratingStats.map((r, idx) => (
+              {analyticsData.scoreStats.map((r, idx) => (
                 <div key={idx} className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-bold text-muted-foreground w-5">{idx + 1}</span>
                     <span className="text-sm">{r.boothName}</span>
-                    <Badge variant="secondary" className="text-xs">{r.count}명</Badge>
+                    <Badge variant="secondary" className="text-xs">{r.count}건</Badge>
                   </div>
-                  <div className="flex items-center gap-1 text-amber-500 font-semibold">
-                    <Star className="h-3.5 w-3.5 fill-current" />
-                    {r.avgRating}
+                  <div className="flex items-center gap-1 text-indigo-600 font-semibold">
+                    <Star className="h-3.5 w-3.5" />
+                    {r.avgScore}
                   </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* 심사위원 채점 순위 */}
-      {analyticsData.scoringStats.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
-              <Trophy className="h-4 w-4 text-yellow-500" />
-              채점 순위
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              {analyticsData.scoringStats.map((s, idx) => (
-                <div key={idx} className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold text-muted-foreground w-5">{idx + 1}</span>
-                    <span className="text-sm">{s.boothName}</span>
-                    <Badge variant="secondary" className="text-xs">{s.count}명</Badge>
-                  </div>
-                  <span className="text-sm font-semibold text-indigo-600">{s.avgTotal}점</span>
                 </div>
               ))}
             </div>
