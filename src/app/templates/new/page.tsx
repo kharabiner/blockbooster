@@ -664,10 +664,10 @@ function PreviewMode({
                 <div className="flex items-center gap-2 mb-2">
                   <div className={cn("w-2.5 h-2.5 rounded-full", accent.dot)} />
                   <p className={cn("text-sm font-black", accent.text)}>{def.name}</p>
-                  {/* config에서 label이 있으면 표시 */}
-                  {inst.config.label && inst.config.label !== def.configSchema.label?.default && (
+                  {typeof inst.config.label === "string" &&
+                    inst.config.label !== def.configSchema.label?.default && (
                     <span className={cn("text-xs font-semibold opacity-70", accent.text)}>
-                      — {String(inst.config.label)}
+                      — {inst.config.label}
                     </span>
                   )}
                 </div>
