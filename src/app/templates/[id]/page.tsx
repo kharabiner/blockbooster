@@ -135,7 +135,7 @@ export default async function TemplateDetailPage({ params }: Params) {
       <div className="mt-8 p-4 rounded-xl bg-indigo-50 border border-indigo-100">
         <p className="text-sm font-medium mb-3">이 템플릿으로 이벤트 만들기</p>
         <Link
-          href={`/dashboard/events/new?templateId=${template.id}`}
+          href={`/dashboard/events/new?templateId=${template.id}&templateName=${encodeURIComponent(template.name)}`}
           className={cn(buttonVariants(), "w-full justify-center")}
         >
           이벤트 생성하기
