@@ -195,7 +195,7 @@ export function BoothBuilder({ eventId, eventTitle, gridRows, gridCols, initialS
     if (!res.ok) { toast.error("저장에 실패했습니다."); return; }
     const data = await res.json();
     setSlots(data.slots);
-    toast.success("저장되었습니다! 💾");
+    toast.success("저장되었습니다.");
   }
 
   // ─── 미리보기 박스 ────────────────────────────────────────────
@@ -217,8 +217,8 @@ export function BoothBuilder({ eventId, eventTitle, gridRows, gridCols, initialS
     <div className="flex flex-col h-[calc(100vh-56px)]">
       {/* 상단 툴바 */}
       <div className="border-b-2 border-foreground bg-background px-4 py-2.5 flex items-center gap-3 flex-wrap shadow-[0_2px_0px_rgba(0,0,0,0.6)]">
-        <Link href="/dashboard" className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}>
-          <ArrowLeft className="h-4 w-4" />대시보드
+        <Link href={`/dashboard/events/${eventId}`} className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}>
+          <ArrowLeft className="h-4 w-4" />이벤트 관리
         </Link>
         <div className="flex-1 min-w-0">
           <h1 className="font-black text-sm truncate">{eventTitle}</h1>
@@ -416,7 +416,7 @@ export function BoothBuilder({ eventId, eventTitle, gridRows, gridCols, initialS
                 >
                   {slot.booth ? (
                     <>
-                      <span className="text-[10px] opacity-70 font-bold">🏪</span>
+                      <span className="text-[10px] opacity-70 font-bold">B</span>
                       <span className="line-clamp-2 text-center px-1 text-[10px] leading-tight">{slot.booth.name}</span>
                     </>
                   ) : (

@@ -10,13 +10,13 @@ import { Plus, Users, Zap, LayoutGrid } from "lucide-react";
 
 export const revalidate = 60;
 
-const MODULE_NAMES: Record<string, { label: string; emoji: string; color: string }> = {
-  "visitor-rating":  { label: "방문객 별점",  emoji: "⭐", color: "bg-yellow-200 text-yellow-800 border-yellow-400" },
-  "judge-scoring":   { label: "심사 채점",    emoji: "🏆", color: "bg-orange-200 text-orange-800 border-orange-400" },
-  "stamp-rally":     { label: "스탬프 랠리",  emoji: "🎫", color: "bg-purple-200 text-purple-800 border-purple-400" },
-  "product-showcase":{ label: "상품 진열",    emoji: "🛍️", color: "bg-blue-200 text-blue-800 border-blue-400" },
-  "live-chat":       { label: "실시간 채팅",  emoji: "💬", color: "bg-green-200 text-green-800 border-green-400" },
-  announcement:      { label: "공지사항",     emoji: "📢", color: "bg-red-200 text-red-800 border-red-400" },
+const MODULE_NAMES: Record<string, { label: string; color: string }> = {
+  "visitor-rating":  { label: "방문객 별점",  color: "bg-yellow-100 text-yellow-800 border-yellow-400" },
+  "judge-scoring":   { label: "심사 채점",    color: "bg-orange-100 text-orange-800 border-orange-400" },
+  "stamp-rally":     { label: "스탬프 랠리",  color: "bg-violet-100 text-violet-800 border-violet-400" },
+  "product-showcase":{ label: "상품 진열",    color: "bg-blue-100 text-blue-800 border-blue-400" },
+  "live-chat":       { label: "실시간 채팅",  color: "bg-emerald-100 text-emerald-800 border-emerald-400" },
+  announcement:      { label: "공지사항",     color: "bg-red-100 text-red-800 border-red-400" },
 };
 
 // 템플릿별 썸네일 레고 블록 컬러
@@ -62,7 +62,7 @@ export default async function TemplatesPage() {
 
       {templates.length === 0 ? (
         <div className="text-center py-20 border-2 border-dashed border-foreground/30 rounded-2xl bg-muted/30">
-          <div className="text-5xl mb-4">🧩</div>
+          <LayoutGrid className="h-10 w-10 text-muted-foreground/40 mx-auto mb-4" />
           <p className="font-black text-lg">공개 템플릿이 없습니다</p>
           <p className="text-sm text-muted-foreground font-semibold mt-1">첫 번째 템플릿을 만들어 공유해보세요!</p>
         </div>
@@ -117,7 +117,7 @@ export default async function TemplatesPage() {
                               m?.color ?? "bg-muted text-foreground border-foreground/30"
                             )}
                           >
-                            {m?.emoji} {m?.label ?? tm.moduleId}
+                            {m?.label ?? tm.moduleId}
                           </span>
                         );
                       })}

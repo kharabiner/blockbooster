@@ -68,13 +68,13 @@ export function Navbar() {
   const { data: session, status } = useSession();
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b-2 border-foreground bg-primary shadow-[0_3px_0px_rgba(0,0,0,0.85)]">
+      <header className="sticky top-0 z-50 w-full border-b-2 border-foreground bg-background shadow-[0_3px_0px_rgba(0,0,0,0.85)]">
       <div className="container mx-auto flex h-14 items-center justify-between px-4">
         {/* 로고 */}
         <Link href="/" className="flex items-center gap-2">
             {/* B자 블록 로고 */}
           <BlockBLogo />
-          <span className="font-black text-lg text-primary-foreground tracking-tight drop-shadow-sm">
+          <span className="font-black text-lg text-foreground tracking-tight">
             BlockBooster
           </span>
         </Link>
@@ -84,25 +84,38 @@ export function Navbar() {
           <Link
             href="/templates"
             className={cn(
-              "hidden sm:inline-flex items-center gap-1 text-sm font-bold text-primary-foreground/80 hover:text-primary-foreground transition-colors px-2 py-1"
+              "inline-flex items-center gap-1 text-sm font-bold text-foreground/70 hover:text-foreground transition-colors px-2 py-1"
             )}
           >
             <LayoutTemplate className="h-4 w-4" />
-            템플릿
+            <span className="hidden sm:inline">템플릿</span>
           </Link>
 
           {status === "loading" ? null : session ? (
             <>
-              <Link
-                href="/dashboard/events/new"
-                className={cn(
-                  buttonVariants({ variant: "secondary", size: "sm" }),
-                  "font-bold"
-                )}
-              >
-                <Plus className="h-4 w-4" />
-                이벤트 만들기
-              </Link>
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  className={cn(buttonVariants({ variant: "secondary", size: "sm" }), "font-bold gap-1")}
+                >
+                  <Plus className="h-4 w-4" />
+                  <span className="hidden sm:inline">만들기</span>
+                  <ChevronDown className="h-3 w-3" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-44 border-2 border-foreground shadow-[3px_3px_0px_rgba(0,0,0,0.85)]">
+                  <DropdownMenuItem className="font-semibold cursor-pointer p-0">
+                    <Link href="/dashboard/events/new" className="flex items-center gap-2 w-full px-2 py-1.5">
+                      <LayoutDashboard className="h-4 w-4 text-primary" />
+                      이벤트 만들기
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="font-semibold cursor-pointer p-0">
+                    <Link href="/my-booths/new" className="flex items-center gap-2 w-full px-2 py-1.5">
+                      <Store className="h-4 w-4 text-green-600" />
+                      부스 만들기
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
 
               <DropdownMenu>
                 <DropdownMenuTrigger
@@ -135,7 +148,7 @@ export function Navbar() {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem className="font-semibold cursor-pointer">
-                    <Link href="/my-booths" className="flex items-center gap-2 w-full">
+                    <Link href="/dashboard?tab=booths" className="flex items-center gap-2 w-full">
                       <Store className="h-4 w-4 text-green-600" />
                       내 부스
                     </Link>
@@ -153,7 +166,7 @@ export function Navbar() {
             </>
           ) : (
             <>
-              <Link href="/login" className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "text-primary-foreground hover:bg-primary-foreground/10 border-primary-foreground/30")}>
+              <Link href="/login" className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}>
                 로그인
               </Link>
               <Link href="/register" className={cn(buttonVariants({ variant: "secondary", size: "sm" }), "font-bold")}>

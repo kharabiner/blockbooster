@@ -5,9 +5,10 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { buttonVariants } from "@/lib/button-variants";
-import { Store, ExternalLink } from "lucide-react";
+import { Store, ExternalLink, Link2, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 type Slot = {
   id: string;
@@ -31,12 +32,32 @@ type BoothMapProps = {
   gridRows: number;
   gridCols: number;
   slots: Slot[];
+  isOrganizer?: boolean;
 };
 
 const CELL_SIZE = 48;
 
-export function BoothMap({ eventId, gridRows, gridCols, slots }: BoothMapProps) {
+export function BoothMap({ eventId, gridRows, gridCols, slots, isOrganizer = false }: BoothMapProps) {
   const [selected, setSelected] = useState<Slot | null>(null);
+  const [inviteLoading, setInviteLoading] = useState(false);
+
+  async function handleCreateInvite(slotId: string) {
+    setInviteLoading(true);
+    try {
+      const res = await fetch(`/api/slots/${slotId}/invite`, { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.error ?? "초대 링크 생성에 실패했습니다.");
+        return;
+      }
+      await navigator.clipboard.writeText(data.inviteUrl);
+      toast.success("초대 링크가 클립보드에 복사되었습니다!");
+    } catch {
+      toast.error("클립보드 복사에 실패했습니다. 링크를 직접 복사해주세요.");
+    } finally {
+      setInviteLoading(false);
+    }
+  }
 
   const gridWidth = gridCols * CELL_SIZE;
   const gridHeight = gridRows * CELL_SIZE;
@@ -57,7 +78,7 @@ export function BoothMap({ eventId, gridRows, gridCols, slots }: BoothMapProps) 
           }}
         >
           {slots.map((slot) => {
-            const hasBoothInfo = slot.booth;
+            const hasBooth = !!slot.booth;
             return (
               <button
                 key={slot.id}
@@ -68,10 +89,11 @@ export function BoothMap({ eventId, gridRows, gridCols, slots }: BoothMapProps) 
                   top: slot.posY * CELL_SIZE + 2,
                   width: slot.width * CELL_SIZE - 4,
                   height: slot.height * CELL_SIZE - 4,
-                  backgroundColor: hasBoothInfo ? slot.color : "#94a3b8",
+                  backgroundColor: slot.color || "#94a3b8",
+                  opacity: hasBooth ? 1 : 0.45,
                 }}
               >
-                {hasBoothInfo ? (
+                {hasBooth ? (
                   <>
                     <Store className="h-4 w-4 mb-0.5 opacity-80" />
                     <span className="line-clamp-1 px-1 text-center">
@@ -79,7 +101,7 @@ export function BoothMap({ eventId, gridRows, gridCols, slots }: BoothMapProps) 
                     </span>
                   </>
                 ) : (
-                  <span className="text-white/70">{slot.label ?? "빈 자리"}</span>
+                  <span className="text-white/80 drop-shadow">{slot.label ?? "빈 자리"}</span>
                 )}
               </button>
             );
@@ -131,12 +153,34 @@ export function BoothMap({ eventId, gridRows, gridCols, slots }: BoothMapProps) 
               ) : (
                 <div className="text-center py-6 text-muted-foreground">
                   <p className="text-sm">아직 부스가 연결되지 않은 자리입니다.</p>
-                  <Link
-                    href={`/events/${eventId}/slots/${selected.id}/apply`}
-                    className={cn(buttonVariants({ variant: "outline" }), "mt-4 inline-flex")}
-                  >
-                    이 자리에 신청하기
-                  </Link>
+                  {isOrganizer ? (
+                    <div className="mt-4 flex flex-col gap-2">
+                      <button
+                        onClick={() => handleCreateInvite(selected.id)}
+                        disabled={inviteLoading}
+                        className={cn(buttonVariants(), "w-full justify-center font-black")}
+                      >
+                        {inviteLoading
+                          ? <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                          : <Link2 className="h-4 w-4 mr-2" />
+                        }
+                        초대 링크 생성 · 복사
+                      </button>
+                      <Link
+                        href={`/dashboard/events/${eventId}`}
+                        className={cn(buttonVariants({ variant: "outline" }), "w-full justify-center")}
+                      >
+                        신청 현황 관리
+                      </Link>
+                    </div>
+                  ) : (
+                    <Link
+                      href={`/events/${eventId}/slots/${selected.id}/apply`}
+                      className={cn(buttonVariants({ variant: "outline" }), "mt-4 inline-flex")}
+                    >
+                      이 자리에 신청하기
+                    </Link>
+                  )}
                 </div>
               )}
             </>

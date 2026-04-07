@@ -6,10 +6,13 @@ import { auth } from "@/lib/auth";
 import { BoothMap } from "@/components/events/BoothMap";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { CalendarDays, MapPin, Store } from "lucide-react";
+import { CalendarDays, MapPin, Store, Settings } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { ShareButton } from "@/components/events/ShareButton";
 import { AnnouncementSection } from "@/components/events/AnnouncementSection";
+import Link from "next/link";
+import { buttonVariants } from "@/lib/button-variants";
+import { cn } from "@/lib/utils";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -70,7 +73,18 @@ export default async function EventPage({ params }: Params) {
               <p className="text-muted-foreground">{event.description}</p>
             )}
           </div>
-          <ShareButton shortCode={event.shortCode} title={event.title} />
+          <div className="flex items-center gap-2">
+            {isOrganizer && (
+              <Link
+                href={`/dashboard/events/${event.id}`}
+                className={cn(buttonVariants({ variant: "outline", size: "sm" }), "font-bold")}
+              >
+                <Settings className="h-4 w-4 mr-1" />
+                이벤트 관리
+              </Link>
+            )}
+            <ShareButton shortCode={event.shortCode} title={event.title} />
+          </div>
         </div>
 
         <div className="flex flex-wrap gap-4 mt-4 text-sm text-muted-foreground">
@@ -123,6 +137,7 @@ export default async function EventPage({ params }: Params) {
             gridRows={event.gridRows}
             gridCols={event.gridCols}
             slots={event.slots}
+            isOrganizer={isOrganizer}
           />
         )}
       </section>

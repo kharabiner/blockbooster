@@ -1,10 +1,11 @@
+import "dotenv/config";
 import { PrismaClient } from "../src/generated/prisma/client";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
-import path from "path";
+import { Pool } from "pg";
+import { PrismaPg } from "@prisma/adapter-pg";
 import bcrypt from "bcryptjs";
 
-const dbPath = path.join(process.cwd(), "prisma", "dev.db");
-const adapter = new PrismaBetterSqlite3({ url: dbPath });
+const pool = new Pool({ connectionString: process.env.DIRECT_URL ?? process.env.DATABASE_URL });
+const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 const MODULES = [
@@ -16,93 +17,118 @@ const MODULES = [
   { id: "announcement", name: "공지사항", description: "이벤트 전체에 공지를 전달합니다.", configSchema: JSON.stringify({}) },
 ];
 
+async function upsertUser(email: string, name: string) {
+  const pw = await bcrypt.hash("devpassword123", 12);
+  return prisma.user.upsert({
+    where: { email },
+    update: {},
+    create: { email, name, password: pw },
+  });
+}
+
 async function main() {
   console.log("🌱 Seeding database...");
 
   // 모듈 upsert
   for (const m of MODULES) {
-    await prisma.featureModule.upsert({
-      where: { id: m.id },
-      update: m,
-      create: m,
-    });
+    await prisma.featureModule.upsert({ where: { id: m.id }, update: m, create: m });
   }
   console.log("✅ Feature modules seeded");
 
-  // 개발팀 시스템 계정
-  const devEmail = "dev@blockbooster.kr";
-  let devUser = await prisma.user.findUnique({ where: { email: devEmail } });
-  if (!devUser) {
-    devUser = await prisma.user.create({
-      data: {
-        name: "BlockBooster 팀",
-        email: devEmail,
-        password: await bcrypt.hash("devpassword123", 12),
-      },
-    });
-  }
-  console.log("✅ Dev user ready");
+  // ── 계정 생성 ──────────────────────────────────────
+  const organizer = await upsertUser("organizer@blockbooster.kr", "이벤트 주최자");
+  const boothUser  = await upsertUser("booth@blockbooster.kr",     "부스 운영자");
+  console.log("✅ Dev users ready");
 
-  // 기본 템플릿 생성
-  const templates = [
-    {
-      name: "캡스톤 전시회",
-      description: "캡스톤 디자인 발표와 학과 전시에 최적화된 템플릿입니다. 심사위원 채점과 방문객 별점 기능을 포함합니다.",
-      isPublic: true,
-      gridRows: 10,
-      gridCols: 12,
-      slotLayout: "[]",
-      modules: ["judge-scoring", "visitor-rating"],
-    },
-    {
-      name: "플리마켓",
-      description: "플리마켓, 벼룩시장에 적합한 템플릿입니다. 상품 진열과 스탬프 랠리 기능을 포함합니다.",
-      isPublic: true,
-      gridRows: 8,
-      gridCols: 10,
-      slotLayout: "[]",
-      modules: ["product-showcase", "stamp-rally"],
-    },
-    {
-      name: "박람회 / 컨퍼런스",
-      description: "대규모 박람회나 컨퍼런스에 적합합니다. 스탬프 랠리와 별점 평가 기능을 포함합니다.",
-      isPublic: true,
-      gridRows: 12,
-      gridCols: 16,
-      slotLayout: "[]",
-      modules: ["stamp-rally", "visitor-rating", "announcement"],
-    },
-    {
-      name: "기본 이벤트",
-      description: "추가 기능 없이 부스 정보만 제공하는 기본 템플릿입니다.",
-      isPublic: true,
-      gridRows: 8,
-      gridCols: 8,
-      slotLayout: "[]",
-      modules: [],
-    },
+  // ── 기본 템플릿 ────────────────────────────────────
+  const TEMPLATES = [
+    { name: "캡스톤 전시회",    description: "심사위원 채점과 방문객 별점 기능을 포함합니다.", modules: ["judge-scoring", "visitor-rating"], gridRows: 10, gridCols: 12 },
+    { name: "플리마켓",         description: "상품 진열과 스탬프 랠리 기능을 포함합니다.",    modules: ["product-showcase", "stamp-rally"],  gridRows: 8,  gridCols: 10 },
+    { name: "박람회 / 컨퍼런스", description: "스탬프 랠리와 별점 평가, 공지 기능을 포함합니다.", modules: ["stamp-rally", "visitor-rating", "announcement"], gridRows: 12, gridCols: 16 },
+    { name: "기본 이벤트",      description: "추가 기능 없이 부스 정보만 제공합니다.",        modules: [],                                  gridRows: 8,  gridCols: 8  },
   ];
 
-  for (const t of templates) {
-    const existing = await prisma.template.findFirst({
-      where: { name: t.name, ownerId: devUser.id },
-    });
+  for (const t of TEMPLATES) {
+    const existing = await prisma.template.findFirst({ where: { name: t.name, ownerId: organizer.id } });
     if (!existing) {
       await prisma.template.create({
         data: {
-          name: t.name,
-          description: t.description,
-          isPublic: t.isPublic,
-          gridRows: t.gridRows,
-          gridCols: t.gridCols,
-          slotLayout: t.slotLayout,
-          ownerId: devUser.id,
-          modules: {
-            create: t.modules.map((moduleId) => ({ moduleId })),
-          },
+          name: t.name, description: t.description,
+          isPublic: true, gridRows: t.gridRows, gridCols: t.gridCols, slotLayout: "[]",
+          ownerId: organizer.id,
+          modules: { create: t.modules.map((moduleId) => ({ moduleId })) },
         },
       });
-      console.log(`✅ Template "${t.name}" created`);
+    }
+  }
+  console.log("✅ Templates seeded");
+
+  // ── 데모 이벤트 (주최자 계정) ──────────────────────
+  let event = await prisma.event.findFirst({ where: { organizerId: organizer.id } });
+  if (!event) {
+    const { nanoid } = await import("nanoid");
+    event = await prisma.event.create({
+      data: {
+        title: "2026 캡스톤 디자인 전시회",
+        description: "컴퓨터공학과 캡스톤 디자인 프로젝트 전시 및 심사 이벤트입니다.",
+        location: "공학관 1층 로비",
+        shortCode: nanoid(8),
+        startAt: new Date("2026-05-01T10:00:00"),
+        endAt:   new Date("2026-05-01T18:00:00"),
+        status: "PUBLISHED",
+        gridRows: 6,
+        gridCols: 8,
+        organizerId: organizer.id,
+      },
+    });
+    // 슬롯 4개 배치
+    const slotDefs = [
+      { posX: 0, posY: 0, width: 2, height: 2, color: "#7C3AED", label: "A팀" },
+      { posX: 2, posY: 0, width: 2, height: 2, color: "#3B82F6", label: "B팀" },
+      { posX: 4, posY: 0, width: 2, height: 2, color: "#22C55E", label: "C팀" },
+      { posX: 0, posY: 2, width: 2, height: 2, color: "#F59E0B", label: "D팀" },
+    ];
+    for (const s of slotDefs) {
+      await prisma.boothSlot.create({ data: { ...s, eventId: event.id } });
+    }
+    console.log("✅ Demo event + slots created");
+  }
+
+  // ── 데모 부스 (부스 운영자 계정) ──────────────────
+  let booth = await prisma.booth.findFirst({ where: { ownerId: boothUser.id } });
+  if (!booth) {
+    const { nanoid } = await import("nanoid");
+    booth = await prisma.booth.create({
+      data: {
+        name: "스마트 홈 IoT 프로젝트",
+        description: "라즈베리파이 기반 스마트 홈 자동화 시스템 프로젝트입니다.",
+        category: "IoT / 임베디드",
+        shortCode: nanoid(8),
+        ownerId: boothUser.id,
+      },
+    });
+    console.log("✅ Demo booth created");
+  }
+
+  // ── 슬롯 신청 (부스 → 이벤트 첫 번째 빈 슬롯) ────
+  const emptySlot = await prisma.boothSlot.findFirst({
+    where: { eventId: event.id, boothId: null },
+  });
+  if (emptySlot) {
+    const alreadyApplied = await prisma.slotApplication.findFirst({
+      where: { slotId: emptySlot.id, boothId: booth.id },
+    });
+    if (!alreadyApplied) {
+      await prisma.slotApplication.create({
+        data: {
+          slotId: emptySlot.id,
+          boothId: booth.id,
+          applicantId: boothUser.id,
+          message: "안녕하세요! 저희 IoT 프로젝트 부스를 신청합니다.",
+          status: "PENDING",
+        },
+      });
+      console.log("✅ Slot application created");
     }
   }
 

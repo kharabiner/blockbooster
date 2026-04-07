@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +14,8 @@ import { cn } from "@/lib/utils";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") ?? "/dashboard";
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [loading, setLoading] = useState(false);
 
@@ -36,9 +38,9 @@ export default function RegisterPage() {
       return;
     }
     await signIn("credentials", { email: form.email, password: form.password, redirect: false });
-    toast.success("가입 완료! 🎉");
+    toast.success("가입 완료!");
     setLoading(false);
-    router.push("/dashboard");
+    router.push(callbackUrl);
   }
 
   return (
@@ -71,14 +73,17 @@ export default function RegisterPage() {
             </div>
             <Button type="submit" className="w-full font-black text-base h-10 bg-green-500 hover:bg-green-600 border-foreground" disabled={loading}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              시작하기 🧱
+              시작하기
             </Button>
           </form>
 
           <div className="px-6 pb-5 text-center">
             <p className="text-sm text-muted-foreground font-semibold">
               이미 계정이 있으신가요?{" "}
-              <Link href="/login" className={cn(buttonVariants({ variant: "link", size: "sm" }), "px-0 font-black text-primary")}>
+              <Link
+                href={callbackUrl !== "/dashboard" ? `/login?callbackUrl=${encodeURIComponent(callbackUrl)}` : "/login"}
+                className={cn(buttonVariants({ variant: "link", size: "sm" }), "px-0 font-black text-primary")}
+              >
                 로그인
               </Link>
             </p>
