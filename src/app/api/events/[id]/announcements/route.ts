@@ -1,66 +1,67 @@
-import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/lib/auth";
 import { z } from "zod";
 
-const postSchema = z.object({
-  content: z.string().min(1).max(1000),
-});
+type Params = { params: Promise<{ id: string }> };
 
-export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+// GET /api/events/[id]/announcements
+export async function GET(_req: NextRequest, { params }: Params) {
   const { id } = await params;
   const announcements = await prisma.announcement.findMany({
     where: { eventId: id },
+    include: { author: { select: { id: true, name: true, image: true } } },
     orderBy: { createdAt: "desc" },
-    include: { author: { select: { name: true } } },
-    take: 20,
+    take: 50,
   });
   return NextResponse.json(announcements);
 }
 
-export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
+const postSchema = z.object({ content: z.string().min(1).max(2000) });
+
+// POST /api/events/[id]/announcements — 주최자만 작성
+export async function POST(req: NextRequest, { params }: Params) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "로그인이 필요합니다." }, { status: 401 });
   }
 
   const { id } = await params;
   const event = await prisma.event.findUnique({ where: { id } });
-  if (!event || event.organizerId !== session.user.id) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  if (!event) return NextResponse.json({ error: "이벤트를 찾을 수 없습니다." }, { status: 404 });
+  if (event.organizerId !== session.user.id) {
+    return NextResponse.json({ error: "주최자만 공지를 작성할 수 있습니다." }, { status: 403 });
   }
 
-  const body = postSchema.safeParse(await req.json());
-  if (!body.success) {
-    return NextResponse.json({ error: "Invalid content" }, { status: 400 });
-  }
+  const body = await req.json();
+  const parsed = postSchema.safeParse(body);
+  if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
 
   const announcement = await prisma.announcement.create({
-    data: {
-      eventId: id,
-      authorId: session.user.id,
-      content: body.data.content,
-    },
-    include: { author: { select: { name: true } } },
+    data: { content: parsed.data.content, eventId: id, authorId: session.user.id },
+    include: { author: { select: { id: true, name: true, image: true } } },
   });
 
   return NextResponse.json(announcement, { status: 201 });
 }
 
-export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
+// DELETE /api/events/[id]/announcements?announcementId=xxx
+export async function DELETE(req: NextRequest, { params }: Params) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "로그인이 필요합니다." }, { status: 401 });
   }
 
   const { id } = await params;
-  const { announcementId } = await req.json();
-
   const event = await prisma.event.findUnique({ where: { id } });
   if (!event || event.organizerId !== session.user.id) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    return NextResponse.json({ error: "권한이 없습니다." }, { status: 403 });
   }
 
-  await prisma.announcement.delete({ where: { id: announcementId } });
+  const { searchParams } = new URL(req.url);
+  const announcementId = searchParams.get("announcementId");
+  if (!announcementId) return NextResponse.json({ error: "announcementId가 필요합니다." }, { status: 400 });
+
+  await prisma.announcement.deleteMany({ where: { id: announcementId, eventId: id } });
   return NextResponse.json({ ok: true });
 }

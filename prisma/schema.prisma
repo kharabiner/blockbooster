@@ -74,6 +74,7 @@ model FeatureModule {
   configSchema String // JSON Schema string
 
   templateModules TemplateModule[]
+  eventModules    EventModule[]
   moduleData      ModuleData[]
 }
 
@@ -136,6 +137,7 @@ model Event {
 
   slots         BoothSlot[]
   announcements Announcement[]
+  modules       EventModule[]
 }
 
 // ─── Booths ───────────────────────────────────────────────────────────────────
@@ -179,6 +181,21 @@ model BoothSlot {
   moduleData   ModuleData[]
   visits       Visit[]
   chatMessages ChatMessage[]
+}
+
+// ─── Event Modules (이벤트 직속 모듈 — 템플릿 없이도 사용 가능) ──────────────
+
+model EventModule {
+  id     String @id @default(cuid())
+  config String @default("{}") // JSON: 모듈별 설정
+
+  eventId String
+  event   Event         @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  moduleId String
+  module   FeatureModule @relation(fields: [moduleId], references: [id])
+
+  @@unique([eventId, moduleId])
 }
 
 // ─── Slot 연결 (신청/초대) ────────────────────────────────────────────────────

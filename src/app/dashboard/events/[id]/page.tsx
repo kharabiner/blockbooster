@@ -8,9 +8,10 @@ import { buttonVariants } from "@/lib/button-variants";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { ArrowLeft, Settings, ExternalLink, QrCode, BarChart2, Store, Clock, CheckCircle2, XCircle } from "lucide-react";
+import { ArrowLeft, Settings, ExternalLink, QrCode, BarChart2, Store, Clock, CheckCircle2, XCircle, Puzzle } from "lucide-react";
 import { EventStatusControl } from "@/components/events/EventStatusControl";
 import { SlotApplicationsList } from "@/components/events/SlotApplicationsList";
+import { EventModuleManager } from "@/components/events/EventModuleManager";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -114,6 +115,20 @@ export default async function EventManagePage({ params }: Params) {
               <p className="text-xs text-orange-700 font-semibold">빈 자리</p>
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* 기능 모듈 관리 */}
+      <Card className="mb-5">
+        <CardHeader>
+          <CardTitle className="text-sm font-black flex items-center gap-2">
+            <Puzzle className="h-4 w-4 text-indigo-500" />
+            기능 모듈
+            <span className="text-xs font-normal text-muted-foreground ml-1">마인크래프트 모드처럼 기능을 조합하세요</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <EventModuleManager eventId={event.id} />
         </CardContent>
       </Card>
 

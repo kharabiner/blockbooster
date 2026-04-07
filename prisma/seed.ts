@@ -48,18 +48,17 @@ async function main() {
     { name: "기본 이벤트",      description: "추가 기능 없이 부스 정보만 제공합니다.",        modules: [],                                  gridRows: 8,  gridCols: 8  },
   ];
 
+  // 기존 공개 템플릿 전체 삭제 후 재생성 (중복 방지)
+  await prisma.template.deleteMany({ where: { isPublic: true } });
   for (const t of TEMPLATES) {
-    const existing = await prisma.template.findFirst({ where: { name: t.name, ownerId: organizer.id } });
-    if (!existing) {
-      await prisma.template.create({
-        data: {
-          name: t.name, description: t.description,
-          isPublic: true, gridRows: t.gridRows, gridCols: t.gridCols, slotLayout: "[]",
-          ownerId: organizer.id,
-          modules: { create: t.modules.map((moduleId) => ({ moduleId })) },
-        },
-      });
-    }
+    await prisma.template.create({
+      data: {
+        name: t.name, description: t.description,
+        isPublic: true, gridRows: t.gridRows, gridCols: t.gridCols, slotLayout: "[]",
+        ownerId: organizer.id,
+        modules: { create: t.modules.map((moduleId) => ({ moduleId })) },
+      },
+    });
   }
   console.log("✅ Templates seeded");
 

@@ -28,9 +28,7 @@ export default async function BoothDetailPage({ params }: Params) {
       },
       event: {
         include: {
-          template: {
-            include: { modules: { include: { module: true } } },
-          },
+          modules: { include: { module: true } },
         },
       },
     },
@@ -41,8 +39,8 @@ export default async function BoothDetailPage({ params }: Params) {
   const isOperator = slot.booth?.ownerId === session?.user?.id;
   const isOrganizer = slot.event.organizerId === session?.user?.id;
 
-  // 이벤트에 활성화된 모듈 목록
-  const activeModules = slot.event.template?.modules ?? [];
+  // 이벤트에 활성화된 모듈 목록 (EventModule 직속)
+  const activeModules = slot.event.modules ?? [];
 
   // 방문 기록
   await prisma.visit.create({
@@ -121,6 +119,8 @@ export default async function BoothDetailPage({ params }: Params) {
                     config: JSON.parse(tm.config),
                   }))}
                   isOperator={isOperator}
+                  isOrganizer={isOrganizer}
+                  eventId={eventId}
                 />
               </section>
             </>

@@ -11,9 +11,11 @@ type Props = {
   slotId: string;
   modules: ModuleConfig[];
   isOperator?: boolean;
+  isOrganizer?: boolean;
+  eventId?: string;
 };
 
-export function BoothModules({ slotId, modules, isOperator }: Props) {
+export function BoothModules({ slotId, modules, isOperator, isOrganizer, eventId }: Props) {
   return (
     <div className="space-y-3">
       {modules.map((m) => (
@@ -23,6 +25,8 @@ export function BoothModules({ slotId, modules, isOperator }: Props) {
           moduleId={m.moduleId}
           config={m.config}
           isOperator={isOperator}
+          isOrganizer={isOrganizer}
+          eventId={eventId}
         />
       ))}
     </div>

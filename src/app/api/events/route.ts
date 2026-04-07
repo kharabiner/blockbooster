@@ -58,14 +58,23 @@ export async function POST(req: NextRequest) {
     shortCode = generateShortCode();
   }
 
-  // 템플릿에서 그리드 크기 상속
+  // 템플릿에서 그리드 크기 상속 + 모듈 목록 로드
   let gridRows = data.gridRows;
   let gridCols = data.gridCols;
+  let templateModules: { moduleId: string; config: string }[] = [];
+
   if (data.templateId) {
-    const template = await prisma.template.findUnique({ where: { id: data.templateId } });
+    const template = await prisma.template.findUnique({
+      where: { id: data.templateId },
+      include: { modules: true },
+    });
     if (template) {
       gridRows = template.gridRows;
       gridCols = template.gridCols;
+      templateModules = template.modules.map((m) => ({
+        moduleId: m.moduleId,
+        config: m.config,
+      }));
     }
   }
 
@@ -81,10 +90,14 @@ export async function POST(req: NextRequest) {
       gridCols,
       organizerId: session.user.id,
       templateId: data.templateId,
+      // 템플릿 모듈을 EventModule로 복사
+      modules: templateModules.length
+        ? { create: templateModules }
+        : undefined,
     },
     include: {
       organizer: { select: { id: true, name: true, image: true } },
-      template: { select: { id: true, name: true, modules: { include: { module: true } } } },
+      modules: { include: { module: true } },
     },
   });
 
